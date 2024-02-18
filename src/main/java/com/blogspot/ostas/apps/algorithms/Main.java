@@ -1,11 +1,9 @@
 package com.blogspot.ostas.apps.algorithms;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
@@ -30,20 +28,45 @@ public class Main {
             // Start the process
             Process process = processBuilder.start();
 
-            // Read output
-            BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                System.out.println(line);
-            }
+            // Thread to read output
+            Thread outputReaderThread = new Thread(() -> {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        System.out.println(line);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            outputReaderThread.start();
 
-            // Read error
-            BufferedReader errorReader =
-                    new BufferedReader(new InputStreamReader(process.getErrorStream()));
-            while ((line = errorReader.readLine()) != null) {
-                System.err.println(line); // Print to stderr
-            }
+            // Thread to read error
+            Thread errorReaderThread = new Thread(() -> {
+                try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
+                    String line;
+                    while ((line = errorReader.readLine()) != null) {
+                        System.err.println(line); // Print to stderr
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            errorReaderThread.start();
+
+            // Read input from stdin
+            try (Scanner scanner = new Scanner(System.in)) {
+                //System.out.print("Enter a line: ");
+                String inputLine = scanner.nextLine();
+
+                // Write to stdin of the spawned process
+                try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()))) {
+                    writer.write(inputLine);
+                    writer.newLine();
+                    writer.flush(); // Flush the stream to ensure data is sent
+                }
+
+            } // Scanner and its underlying stream will be closed automatically after this block
 
             // Wait for the process to finish
             int exitCode = process.waitFor();
