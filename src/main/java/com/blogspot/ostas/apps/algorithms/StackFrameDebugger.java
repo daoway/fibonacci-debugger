@@ -59,12 +59,6 @@ public class StackFrameDebugger {
             }
         }
 
-        // Suspend the main thread
-        mainThread.suspend();
-
-        // Resume the main thread
-        mainThread.resume();
-
         // Disconnect from the target VM
         vm.dispose();
     }
