@@ -24,7 +24,7 @@ public class StackFrameDebugger {
         ThreadReference mainThread = getMainThread(vm);
 
         // Set a breakpoint at a specific line of code
-        Location breakpointLocation = findLocation(mainThread, FibonacciApp.class.getName(), 23);
+        Location breakpointLocation = findLocation(mainThread, FibonacciApp.class.getName(), 25);
         BreakpointRequest breakpointRequest = mainThread.virtualMachine().eventRequestManager().createBreakpointRequest(breakpointLocation);
         breakpointRequest.enable();
 
