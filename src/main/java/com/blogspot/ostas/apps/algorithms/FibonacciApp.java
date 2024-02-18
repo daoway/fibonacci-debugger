@@ -13,7 +13,7 @@ public class FibonacciApp {
 
         scanner.close(); // Don't forget to close the scanner
 
-        int n = 50;
+        int n = 5;
         int x0 = fib0(n); //1,1,2,3,5
         System.out.println(x0);
     }
